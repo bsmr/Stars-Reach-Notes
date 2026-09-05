@@ -21,6 +21,8 @@ graph LR
 
 ### Cohufotag
 
+#### Cohufotag - Connections
+
 - Starbase
 - Sector Connections
   - Letiemopas
@@ -34,17 +36,33 @@ graph LR
 
 ### Kai
 
+#### Kai - Information
+
+- Health: 96.0%
+- Minerals: Quantity 70%, Diversity 100%
+- Flora: Quantity 100%, Diversity 100%
+- Fauna: Quantity 100%, Diversity 100%
+- Servitor Edicts: Copper, Iron, Vesuvianite, Nickel, Tungsten
+
+#### Kai - Connections
+
 - Starbase
 - Sector Connections
   - Owiis Nuheuno
   - Tapinexe Pavi
 - Planets
   - Kai I
+    - Population: 178
+    - Mineral Edicts: Garnet, Gold, Salt, Amethyst, Bismuth
+    - Flora Edicts: None
+    - Fauna Edicts: None
   - Kai II
   - Kai III-C
   - Kai IV-C
 
 ### Letiemopas
+
+#### Letiemopas - Connections
 
 - Starbase
 - Sector Connections
@@ -58,6 +76,16 @@ graph LR
 
 ### Owiis Nuheuno
 
+#### Owiis Nuheuno - Information
+
+- Health: 95.7%
+- Minerals: Quantity 68%, Diversity 100%
+- Flora: Quantity 100%, Diversity 100%
+- Fauna: Quantity 100%, Diversity 100%
+- Servitor Edicts: Copper, Iron, Vesuvianite, Nickel, Tungsten
+
+#### Owiis Nuheuno - Connections
+
 - Starbase
 - Sector Connections
   - Cohufotag
@@ -70,6 +98,8 @@ graph LR
   - Owiis Nuheuno IV-C
 
 ### Tapinexe Pavi
+
+#### Tapinexe Pavi - Connections
 
 - Starbase
 - Sector Connections
