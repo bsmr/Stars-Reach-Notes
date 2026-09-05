@@ -57,6 +57,10 @@ graph LR
     - Flora Edicts: None
     - Fauna Edicts: None
   - Kai II
+    - Population: 46
+    - Mineral Edicts: Gold, Tin, Zinc, Nickel, Manganese
+    - Flora Edicts: None
+    - Fauna Edicts: None
   - Kai III-C
   - Kai IV-C
 
