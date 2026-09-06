@@ -8,6 +8,7 @@ from extract_sector import (
     format_entry,
     parse_ecology,
     parse_govbot,
+    govbot_planet,
     locate,
     planet,
     read_sector,
@@ -87,6 +88,11 @@ try:
 except SystemExit:
     pass
 
+# The govbot dialog names its own planet, which catches a misfiled screenshot
+assert govbot_planet(GOVBOT_OCR) == "KAI I", govbot_planet(GOVBOT_OCR)
+assert govbot_planet("TAPINEXE PAVI Il GOVBOT - CITIZENSHIP\n") == "TAPINEXE PAVI II"
+assert govbot_planet("no title here\n") is None, "a missing title must not be an error"
+
 gov = parse_govbot(GOVBOT_OCR)
 assert "Mayor" not in gov, "the mayor's name is deliberately not extracted"
 assert gov["Population"] == "178"
@@ -151,6 +157,13 @@ with TemporaryDirectory() as d:
     seen_without_portals["planets"].setdefault("Cohufotag I", {})
     upsert(md, "Cohufotag", format_entry("Cohufotag", seen_without_portals))
     assert "  - Cohufotag III-B" in md.read_text(), "closed portal deleted a known planet"
+
+    # Sector portals open and close too, so a later capture that no longer shows
+    # a neighbour must not drop it either
+    data = read_sector(md.read_text(), "Cohufotag")
+    data["connections"] = sorted(set(data["connections"]) | {"Letiemopas"})
+    upsert(md, "Cohufotag", format_entry("Cohufotag", data))
+    assert "  - Owiis Nuheuno" in md.read_text(), "closed portal deleted a known connection"
 
 with TemporaryDirectory() as d:
     md = Path(d) / "Sectors.md"

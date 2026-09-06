@@ -111,6 +111,17 @@ def parse_govbot(text):
     return fields
 
 
+def govbot_planet(text):
+    """Return the planet the govbot dialog names, or None if OCR missed the title.
+
+    The title reads "<PLANET> GOVBOT - CITIZENSHIP". It is not always legible, so
+    a missing title is not an error; only a title naming a *different* planet is.
+    """
+    m = re.search(r"^(.+?)\s+GOVBOT", text, re.M)
+    # OCR renders roman "I" as a lowercase L or a pipe here too
+    return re.sub(r"[l|]", "I", m.group(1)).strip().upper() if m else None
+
+
 def read_sector(content, sector):
     """Parse an existing sector section back into its parts."""
     data = {"starbase": False, "fields": {}, "connections": [], "planets": {}}
@@ -244,12 +255,18 @@ def main():
         starbase, connections, planets = classify_map(text, sector)
         if not (connections or planets):
             sys.exit(f"No waypoints recognised in {args.screenshot}")
-        data["starbase"] = starbase
-        data["connections"] = connections
-        # ponytail: planets are only ever added, so a bad OCR run cannot delete known ones
+        # Connections and planets are only ever added: portals are not always
+        # open, and a capture taken while one was closed must not delete it.
+        # This also makes the result independent of the order captures are read.
+        data["starbase"] = data["starbase"] or starbase
+        data["connections"] = sorted(set(data["connections"]) | set(connections))
         for name in planets:
             data["planets"].setdefault(name, {})
     else:
+        if kind == "govbot" and (shown := govbot_planet(text)):
+            if shown != planet_name.upper():
+                sys.exit(f"{args.screenshot} shows {shown}, but sits in a directory "
+                         f"for {planet_name!r} - move it to the right planet")
         fields = parse_ecology(text) if kind == "ecology" else parse_govbot(text)
         if not fields:
             sys.exit(f"No {kind} data recognised in {args.screenshot}")
