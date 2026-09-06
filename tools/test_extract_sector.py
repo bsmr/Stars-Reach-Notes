@@ -1,6 +1,7 @@
 """Self-check: python3 test_extract_sector.py"""
 
 from pathlib import Path
+from subprocess import check_output
 from tempfile import TemporaryDirectory
 
 from extract_sector import (
@@ -13,6 +14,7 @@ from extract_sector import (
     planet,
     read_sector,
     render_graph,
+    blob_id,
     log_moves,
     upsert,
     waypoints,
@@ -235,9 +237,17 @@ with TemporaryDirectory() as d:
     log_moves(md, "Kai", "2026-09-05 20:00", {"Kai I": (1, 2, 3)})
     assert md.read_text() == before, "re-reading a capture out of order changed the log"
 
-    log_moves(md, "Cohufotag", "2026-09-06 10:49", {"Cohufotag I": (5, 5, 5)})
+    log_moves(md, "Cohufotag", "2026-09-06 10:49", {"Cohufotag I": (5, 5, 5)}, "abc123def456")
+    assert "abc123def456" in md.read_text(), "the row does not name the capture it came from"
     out = md.read_text()
     assert out.index("## Cohufotag") < out.index("## Kai"), "sectors not sorted"
     assert "Kai I" in out, "adding a sector dropped another one"
+
+# blob_id must match what git itself computes, or a row cannot be traced back.
+with TemporaryDirectory() as d:
+    f = Path(d) / "x.png"
+    f.write_bytes(b"not really a png")
+    expected = check_output(["git", "hash-object", str(f)], text=True).strip()
+    assert blob_id(f) == expected[:12], f"{blob_id(f)} != {expected[:12]}"
 
 print("ok")

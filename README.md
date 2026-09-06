@@ -39,7 +39,10 @@ the panels on its own, no cropping needed.
 [`Coordinates.md`](Coordinates.md) is the movement log: portals and planets
 change position between captures, and it records a row whenever one moved. It
 grows with every map capture and is never rebuilt from scratch, so old rows
-survive a screenshot being replaced.
+survive a screenshot being replaced. Each row names the capture it came from by
+git blob hash — `git cat-file blob <id> > capture.png` brings that screenshot
+back — so a map capture may be deleted once it has been committed and read, and
+only the current one needs to stay.
 
 Only `I` and `II` have a govbot; `III-x` and `IV-x` are unsettled and
 dangerous, so they appear in `Sectors.md` as a bare name and nothing is

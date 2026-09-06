@@ -31,6 +31,17 @@ screenshots — a replaced capture is gone from disk but its row stays. So never
 delete it to regenerate; the tool merges into it and sorts by time, which is
 what keeps the result independent of the order captures are read in.
 
+Every row names its capture by git blob hash, so a screenshot does not have to
+stay in the working tree once it has been read — one map capture per sector is
+enough to keep the tree readable:
+
+```bash
+git cat-file blob <id> > capture.png   # the image the row came from
+```
+
+This only works while the blob is reachable, i.e. it was committed at least
+once. Read a capture *before* removing it, never after.
+
 ## Build & Test Commands
 
 ```bash

@@ -14,6 +14,7 @@ can be imported in any order.
 """
 
 import argparse
+import hashlib
 import re
 import sys
 from datetime import datetime
@@ -26,7 +27,11 @@ HEADING = """# Stars Reach - Waypoint Movement
 
 Generated. A row is written only when a waypoint moved, so every line is a
 change. Coordinates are relative to the sector they are viewed from; the
-starbase is the same in every sector."""
+starbase is the same in every sector.
+
+"Capture" is the screenshot's git blob hash. The image itself need not stay in
+the working tree - `git cat-file blob <id> > capture.png` brings it back from
+the history."""
 
 # Screenshots narrower than this are enlarged before OCR (see ocr()).
 OCR_MIN_WIDTH = 3200
@@ -114,35 +119,48 @@ def waypoints(text, sector):
     return found
 
 
-def log_moves(md_path, sector, stamp, points):
+def blob_id(path):
+    """The screenshot's git blob hash, short - what `git hash-object` prints.
+
+    Recorded per row so a value can be traced back to the capture it came from
+    even after that file was replaced or removed: the blob stays in the
+    history, and `git cat-file blob <id>` brings the image back.
+    """
+    data = path.read_bytes()
+    return hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()[:12]
+
+
+def log_moves(md_path, sector, stamp, points, source=""):
     """Append a sector's waypoints to the movement log, keeping only the changes.
 
     Rebuilt from every line each time, so reading captures out of order gives
     the same file - the same invariant the sector sections have.
     """
-    seen = {}  # sector -> list of (stamp, label, coords)
+    seen = {}  # sector -> {(stamp, label, coords): source}
     if md_path.exists():
         current = None
         for line in md_path.read_text().splitlines():
             if line.startswith("## "):
                 current = line[3:].strip()
             cells = [c.strip() for c in line.strip().strip("|").split("|")]
-            if current and len(cells) == 5 and cells[0][:1].isdigit():
-                seen.setdefault(current, []).append(
-                    (cells[0], cells[1], tuple(int(c) for c in cells[2:])))
+            if current and len(cells) in (5, 6) and cells[0][:1].isdigit():
+                key = (cells[0], cells[1], tuple(int(c) for c in cells[2:5]))
+                seen.setdefault(current, {}).setdefault(key, cells[5] if len(cells) == 6 else "")
     for label, coords in points.items():
-        seen.setdefault(sector, []).append((stamp, label, coords))
+        seen.setdefault(sector, {}).setdefault((stamp, label, coords), source)
 
     out = [HEADING, ""]
     for sec in sorted(seen):
-        out += [f"## {sec}", "", "| When | Waypoint | X | Y | Z |", "|---|---|--:|--:|--:|"]
-        rows = sorted(set(seen[sec]), key=lambda r: (r[1], r[0]))
+        out += [f"## {sec}", "",
+                "| When | Waypoint | X | Y | Z | Capture |",
+                "|---|---|--:|--:|--:|---|"]
         previous = {}
-        for when, label, coords in rows:
+        for (when, label, coords), src in sorted(seen[sec].items(), key=lambda kv: (kv[0][1], kv[0][0])):
             if previous.get(label) == coords:
                 continue  # an unchanged waypoint says nothing about movement
             previous[label] = coords
-            out.append(f"| {when} | {label} | " + " | ".join(str(c) for c in coords) + " |")
+            out.append(f"| {when} | {label} | "
+                       + " | ".join(str(c) for c in coords) + f" | {src} |")
         out.append("")
     md_path.write_text("\n".join(out).rstrip() + "\n")
 
@@ -367,7 +385,7 @@ def main():
         print(f"Wrote {args.file}")
         if kind == "map":
             log_moves(args.coords, sector, capture_time(args.screenshot),
-                      waypoints(text, sector))
+                      waypoints(text, sector), blob_id(args.screenshot))
             print(f"Wrote {args.coords}")
 
 
