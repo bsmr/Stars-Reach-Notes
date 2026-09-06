@@ -1,5 +1,11 @@
 # Stars Reach - Sectors
 
+Every connection here is one that has *ever* been open, not one that is open
+now. Portals come and go, and some are announced in chat for a limited time —
+**Pewazi** is reached that way, so treat its edges as occasional rather than
+standing. A sector section can also lag behind: it lists what its own newest map
+capture saw, while the graph unions both directions.
+
 ## Connections
 
 ```mermaid
