@@ -119,8 +119,13 @@ graph LR
   - Cohufotag
   - Kai
   - Letiemopas
+  - Pewazi
 - Planets
   - Owiis Nuheuno I
+    - Population: 100
+    - Mineral Edicts: Lapis Lazuli, Gold, Amethyst, Magnetized Iron
+    - Flora Edicts: Banyan, Truffula, Papaya
+    - Fauna Edicts: None
   - Owiis Nuheuno II
   - Owiis Nuheuno III-C
   - Owiis Nuheuno IV-C
