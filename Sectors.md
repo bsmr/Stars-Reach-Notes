@@ -107,7 +107,7 @@ graph LR
 #### Owiis Nuheuno - Information
 
 - Health: 95.7%
-- Minerals: Quantity 68%, Diversity 100%
+- Minerals: Quantity 67%, Diversity 100%
 - Flora: Quantity 100%, Diversity 100%
 - Fauna: Quantity 100%, Diversity 100%
 - Servitor Edicts: Copper, Iron, Vesuvianite, Nickel, Tungsten
