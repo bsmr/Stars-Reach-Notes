@@ -34,6 +34,9 @@ OCR_MIN_WIDTH = 3200
 # Map waypoints look like: "Cohufotag II (245, 87, 321)"
 WAYPOINT = re.compile(r"^\s*(.+?)\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\s*$")
 
+# Waypoints that mark an event or the player, not a place that can be revisited.
+TRANSIENT = ("Current location", "Public event")
+
 # Order of the detail lines; unknown fields are kept and listed after these.
 SECTOR_FIELDS = ["Health", "Minerals", "Flora", "Fauna", "Servitor Edicts", "Guardian Edicts"]
 PLANET_FIELDS = ["Population", "Mineral Edicts", "Flora Edicts", "Fauna Edicts"]
@@ -69,7 +72,7 @@ def classify_map(text, sector):
             connections.append(name[: -len(" Sector")])
         elif pl := planet(name, sector):
             planets.append(pl)
-        # ponytail: everything else (Current location, Public event) is transient, ignored
+        # ponytail: everything else is TRANSIENT, ignored
     return starbase, sorted(set(connections)), sorted(set(planets))
 
 
@@ -102,7 +105,9 @@ def waypoints(text, sector):
         if not m:
             continue
         name = re.sub(r"^[^\w]+\s*", "", m.group(1))
-        if "Current location" in name:
+        # OCR leaves the waypoint icon as a letter in front of the name, so match
+        # anywhere rather than at the start ("A Current location")
+        if any(x in name for x in TRANSIENT):
             continue
         found[planet(name, sector) or name.replace("|", "I")] = tuple(
             int(v) for v in m.group(2, 3, 4))

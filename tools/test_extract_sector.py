@@ -201,13 +201,17 @@ with TemporaryDirectory() as d:
 
 # --- waypoint movement log ---
 WP_OCR = """A Current location (358, 131, 229)
+Public event (367, 186, 336)
 © Cohufotag II (245, 87, 321)
 Cohufotag | (355, 131, 222)
 Letiemopas Sector (483, 69, 929)
+Public event (367, 186, 336)
 Starbase (594, 150, 391)
 """
 wp = waypoints(WP_OCR, "Cohufotag")
 assert "Current location" not in wp, "the player's own position is not a waypoint"
+assert "Public event" not in wp, "an event is not a place, it does not move"
+assert not any("Current location" in k for k in wp), "the icon glyph hid the label"
 assert wp["Cohufotag II"] == (245, 87, 321)
 assert wp["Cohufotag I"] == (355, 131, 222), "OCR's pipe would break the Markdown table"
 assert wp["Starbase"] == (594, 150, 391)
