@@ -36,6 +36,10 @@ images are enlarged before the text is read, so anything above that floor works;
 below it the map loses planets. Full-screen captures are fine — the tool finds
 the panels on its own, no cropping needed.
 
+Only `I` and `II` have a govbot; `III-x` and `IV-x` are unsettled and
+dangerous, so they appear in `Sectors.md` as a bare name and nothing is
+missing.
+
 Despite its title, the ecology dialog describes the *sector*, not the planet you
 are standing on. Only the govbot dialog is per-planet — and because that dialog
 names its planet in the title, the tool refuses a capture that sits in the wrong

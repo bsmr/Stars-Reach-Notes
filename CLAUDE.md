@@ -73,6 +73,10 @@ Domain facts that are not visible in the code or the screenshots:
 - Each sector has two fixed planets (`I`, `II`) and two whose portals are not
   always open (`III-x`, `IV-x`), and their coordinates move between captures.
   Sector connections come and go the same way.
+- **`III-x` and `IV-x` have no govbot.** They are unsettled and hostile — one
+  landing zone was inside lava — so a planet section with nothing but a name is
+  complete data, not a missing capture. Only `I` and `II` carry population and
+  edicts.
 - Some portals open only for a limited time and the game announces it in chat
   ("the portal to Pewazi is now open"). A capture therefore shows what was
   reachable at that moment, never the full set.
