@@ -184,6 +184,7 @@ graph LR
 - Sector Connections
   - Cohufotag
   - Kai
+  - Pewazi
 - Planets
   - Tapinexe Pavi I
     - Population: 64
