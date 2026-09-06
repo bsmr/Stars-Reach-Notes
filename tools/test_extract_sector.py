@@ -13,7 +13,9 @@ from extract_sector import (
     planet,
     read_sector,
     render_graph,
+    log_moves,
     upsert,
+    waypoints,
 )
 
 MAP_OCR = """
@@ -196,5 +198,42 @@ with TemporaryDirectory() as d:
     assert note in md.read_text(), "the hand-kept header was overwritten"
     upsert(md, "Kai", "### Kai\n\n- Sector Connections\n  - Pewazi\n")
     assert note in md.read_text(), "upsert dropped the hand-kept header"
+
+# --- waypoint movement log ---
+WP_OCR = """A Current location (358, 131, 229)
+© Cohufotag II (245, 87, 321)
+Cohufotag | (355, 131, 222)
+Letiemopas Sector (483, 69, 929)
+Starbase (594, 150, 391)
+"""
+wp = waypoints(WP_OCR, "Cohufotag")
+assert "Current location" not in wp, "the player's own position is not a waypoint"
+assert wp["Cohufotag II"] == (245, 87, 321)
+assert wp["Cohufotag I"] == (355, 131, 222), "OCR's pipe would break the Markdown table"
+assert wp["Starbase"] == (594, 150, 391)
+assert wp["Letiemopas Sector"] == (483, 69, 929), "portals are waypoints too"
+assert not any("|" in k for k in wp), "a pipe in a label breaks the table it is written to"
+
+with TemporaryDirectory() as d:
+    md = Path(d) / "Coordinates.md"
+    log_moves(md, "Kai", "2026-09-05 13:04", {"Kai I": (1, 2, 3), "Starbase": (594, 150, 391)})
+    log_moves(md, "Kai", "2026-09-06 09:53", {"Kai I": (1, 2, 3), "Starbase": (594, 150, 391)})
+    out = md.read_text()
+    assert out.count("Kai I") == 1, "an unchanged waypoint must not be logged twice"
+
+    log_moves(md, "Kai", "2026-09-06 18:00", {"Kai I": (9, 9, 9)})
+    out = md.read_text()
+    assert out.count("Kai I") == 2, "a move was not recorded"
+    assert out.index("2026-09-05 13:04") < out.index("2026-09-06 18:00"), "not in time order"
+
+    # Reading an older capture last must not change the result.
+    before = md.read_text()
+    log_moves(md, "Kai", "2026-09-05 20:00", {"Kai I": (1, 2, 3)})
+    assert md.read_text() == before, "re-reading a capture out of order changed the log"
+
+    log_moves(md, "Cohufotag", "2026-09-06 10:49", {"Cohufotag I": (5, 5, 5)})
+    out = md.read_text()
+    assert out.index("## Cohufotag") < out.index("## Kai"), "sectors not sorted"
+    assert "Kai I" in out, "adding a sector dropped another one"
 
 print("ok")

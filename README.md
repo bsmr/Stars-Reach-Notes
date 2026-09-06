@@ -36,6 +36,11 @@ images are enlarged before the text is read, so anything above that floor works;
 below it the map loses planets. Full-screen captures are fine — the tool finds
 the panels on its own, no cropping needed.
 
+[`Coordinates.md`](Coordinates.md) is the movement log: portals and planets
+change position between captures, and it records a row whenever one moved. It
+grows with every map capture and is never rebuilt from scratch, so old rows
+survive a screenshot being replaced.
+
 Only `I` and `II` have a govbot; `III-x` and `IV-x` are unsettled and
 dangerous, so they appear in `Sectors.md` as a bare name and nothing is
 missing.

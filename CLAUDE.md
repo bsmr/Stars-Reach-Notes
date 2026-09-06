@@ -24,6 +24,13 @@ extractor for them. Read the images directly (crop and upscale) when updating.
 overwrites the sector sections. To change the *layout*, change `format_entry()`
 and `read_sector()` together, then regenerate.
 
+`Coordinates.md` is generated too, from map captures only, and holds the
+**history**: a row per waypoint per capture, but written only when the
+coordinates changed. Unlike `Sectors.md` it cannot be rebuilt from the current
+screenshots — a replaced capture is gone from disk but its row stays. So never
+delete it to regenerate; the tool merges into it and sorts by time, which is
+what keeps the result independent of the order captures are read in.
+
 ## Build & Test Commands
 
 ```bash
@@ -100,6 +107,12 @@ Domain facts that are not visible in the code or the screenshots:
 - The starbase sits at the same sector-relative coordinates (594, 150, 391) in
   every sector that has one, so it is part of the sector layout. Waypoint
   coordinates are relative to the sector they are viewed from.
+- A capture's timestamp comes from the PNG's `Creation Time`, which
+  gnome-screenshot writes. The file's mtime is only when it was copied into the
+  repo and a clone resets it, so it is a fallback, not the source.
+- OCR reads a roman "I" as a pipe, which would break the Markdown table in
+  `Coordinates.md`. `waypoints()` runs labels through `planet()` for that
+  reason, not just for tidiness.
 
 Every run rewrites the `## Connections` Mermaid graph from the sector sections,
 so `Sectors.md` stays the single source for the graph.

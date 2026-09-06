@@ -16,16 +16,23 @@ can be imported in any order.
 import argparse
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import pytesseract
 from PIL import Image
 
+HEADING = """# Stars Reach - Waypoint Movement
+
+Generated. A row is written only when a waypoint moved, so every line is a
+change. Coordinates are relative to the sector they are viewed from; the
+starbase is the same in every sector."""
+
 # Screenshots narrower than this are enlarged before OCR (see ocr()).
 OCR_MIN_WIDTH = 3200
 
 # Map waypoints look like: "Cohufotag II (245, 87, 321)"
-WAYPOINT = re.compile(r"^\s*(.+?)\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)\s*$")
+WAYPOINT = re.compile(r"^\s*(.+?)\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\s*$")
 
 # Order of the detail lines; unknown fields are kept and listed after these.
 SECTOR_FIELDS = ["Health", "Minerals", "Flora", "Fauna", "Servitor Edicts", "Guardian Edicts"]
@@ -64,6 +71,75 @@ def classify_map(text, sector):
             planets.append(pl)
         # ponytail: everything else (Current location, Public event) is transient, ignored
     return starbase, sorted(set(connections)), sorted(set(planets))
+
+
+MONTHS = {m: i for i, m in enumerate(
+    "jan feb mar apr may jun jul aug sep oct nov dec".split(), 1)}
+MONTHS.update({"mär": 3, "mrz": 3, "okt": 10, "dez": 12})
+
+
+def capture_time(screenshot):
+    """When the screenshot was taken, as "YYYY-MM-DD HH:MM"."""
+    # gnome-screenshot stamps the PNG; the file's mtime is only when it was
+    # copied into the repo, which a fresh clone resets.
+    stamp = Image.open(screenshot).info.get("Creation Time", "")
+    m = re.search(r"(\d{1,2}) (\w{3})\w* (\d{4}) (\d{2}):(\d{2})", stamp)
+    if m and m.group(2).lower() in MONTHS:
+        day, mon, year, hh, mm = m.groups()
+        return f"{year}-{MONTHS[mon.lower()]:02d}-{int(day):02d} {hh}:{mm}"
+    return datetime.fromtimestamp(screenshot.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+
+
+def waypoints(text, sector):
+    """Every map waypoint as {label: (x, y, z)}, minus the player's own position.
+
+    Planet labels are normalised through planet(), which also removes the
+    pipes OCR reads roman "I" as - those would break the Markdown table.
+    """
+    found = {}
+    for line in text.splitlines():
+        m = WAYPOINT.match(line)
+        if not m:
+            continue
+        name = re.sub(r"^[^\w]+\s*", "", m.group(1))
+        if "Current location" in name:
+            continue
+        found[planet(name, sector) or name.replace("|", "I")] = tuple(
+            int(v) for v in m.group(2, 3, 4))
+    return found
+
+
+def log_moves(md_path, sector, stamp, points):
+    """Append a sector's waypoints to the movement log, keeping only the changes.
+
+    Rebuilt from every line each time, so reading captures out of order gives
+    the same file - the same invariant the sector sections have.
+    """
+    seen = {}  # sector -> list of (stamp, label, coords)
+    if md_path.exists():
+        current = None
+        for line in md_path.read_text().splitlines():
+            if line.startswith("## "):
+                current = line[3:].strip()
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if current and len(cells) == 5 and cells[0][:1].isdigit():
+                seen.setdefault(current, []).append(
+                    (cells[0], cells[1], tuple(int(c) for c in cells[2:])))
+    for label, coords in points.items():
+        seen.setdefault(sector, []).append((stamp, label, coords))
+
+    out = [HEADING, ""]
+    for sec in sorted(seen):
+        out += [f"## {sec}", "", "| When | Waypoint | X | Y | Z |", "|---|---|--:|--:|--:|"]
+        rows = sorted(set(seen[sec]), key=lambda r: (r[1], r[0]))
+        previous = {}
+        for when, label, coords in rows:
+            if previous.get(label) == coords:
+                continue  # an unchanged waypoint says nothing about movement
+            previous[label] = coords
+            out.append(f"| {when} | {label} | " + " | ".join(str(c) for c in coords) + " |")
+        out.append("")
+    md_path.write_text("\n".join(out).rstrip() + "\n")
 
 
 def planet(name, sector):
@@ -240,6 +316,9 @@ def main():
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("screenshot", type=Path)
     p.add_argument("--file", type=Path, default=Path(__file__).parent.parent / "Sectors.md")
+    p.add_argument("--coords", type=Path,
+                   default=Path(__file__).parent.parent / "Coordinates.md",
+                   help="movement log written for map captures")
     p.add_argument("--dry-run", action="store_true", help="print the entry, write nothing")
     args = p.parse_args()
 
@@ -281,6 +360,10 @@ def main():
         upsert(args.file, sector, entry)
         render_graph(args.file)
         print(f"Wrote {args.file}")
+        if kind == "map":
+            log_moves(args.coords, sector, capture_time(args.screenshot),
+                      waypoints(text, sector))
+            print(f"Wrote {args.coords}")
 
 
 if __name__ == "__main__":
