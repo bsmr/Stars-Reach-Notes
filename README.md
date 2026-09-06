@@ -9,19 +9,27 @@ ecology values and edicts, plus a Mermaid graph of how the sectors link up. It i
 by [`tools/extract_sector.py`](tools/extract_sector.py) — edit the screenshots or
 the tool, not the Markdown.
 
+[`Crafting.md`](Crafting.md) lists the resource categories and every refinery
+conversion. It is **hand-maintained**: those two Galactopedia infographics use
+type too small for OCR, so they are transcribed from the screenshots by hand and
+need re-checking after a patch.
+
 ## Contributing screenshots
 
 Take the screenshot at the resolution you play at and file it by what it shows:
 
 ```text
-media/screenshots/<Sector>/map/image.png              # the MAP tab, LOCAL view
-media/screenshots/<Sector>/ecology/image.png          # PLANET ECOLOGY - SUMMARY
-media/screenshots/<Sector>/<Planet>/govbot/image.png  # <PLANET> GOVBOT - CITIZENSHIP
+media/screenshots/<Sector>/map/<name>.png              # the MAP tab, LOCAL view
+media/screenshots/<Sector>/ecology/<name>.png          # PLANET ECOLOGY - SUMMARY
+media/screenshots/<Sector>/<Planet>/govbot/<name>.png  # <PLANET> GOVBOT - CITIZENSHIP
 ```
 
 The path is how the tool knows what a capture is, so the directory names matter:
 `<Sector>` as the game spells it, `<Planet>` as `<Sector> <designator>` — for
-example `media/screenshots/Kai/Kai I/govbot/image.png`.
+example `media/screenshots/Kai/Kai I/govbot/image.png`. The **file name is
+free**: drop several captures of the same view into one directory (`image-0.png`,
+`image-1.png`, …) to record how a sector changed over time. Connections and
+planets are merged across them, so no capture can remove what another found.
 
 **Resolution:** at least 1280px wide, and do not downscale to save space. Small
 images are enlarged before the text is read, so anything above that floor works;
