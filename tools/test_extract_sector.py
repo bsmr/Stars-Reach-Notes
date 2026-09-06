@@ -183,4 +183,18 @@ with TemporaryDirectory() as d:
     render_graph(md)
     assert md.read_text() == out, "render_graph is not idempotent"
 
+# Prose above the graph is hand-kept (which portals are temporary is announced
+# in chat, never visible in a screenshot) and must survive a run.
+with TemporaryDirectory() as d:
+    md = Path(d) / "Sectors.md"
+    note = "Pewazi is reached through a portal that is not always open.\n"
+    md.write_text(
+        "# Stars Reach - Sectors\n\n" + note + "\n## Sectors\n\n"
+        "### Kai\n\n- Sector Connections\n  - Owiis Nuheuno\n"
+    )
+    render_graph(md)
+    assert note in md.read_text(), "the hand-kept header was overwritten"
+    upsert(md, "Kai", "### Kai\n\n- Sector Connections\n  - Pewazi\n")
+    assert note in md.read_text(), "upsert dropped the hand-kept header"
+
 print("ok")

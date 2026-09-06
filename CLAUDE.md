@@ -39,8 +39,9 @@ cd tools && python test_extract_sector.py  # assert-based self-check, prints "ok
 Regenerate everything from scratch:
 
 ```bash
-head -8 Sectors.md > /tmp/header.md   # title + the note on temporary portals
-{ cat /tmp/header.md; echo '## Sectors'; } > Sectors.md
+# keep the hand-written header (title + the note on temporary portals)
+{ sed '/^## Connections$/,$d' Sectors.md; echo '## Sectors'; } > Sectors.md.new
+mv Sectors.md.new Sectors.md
 for f in media/screenshots/*/map/*.png \
          media/screenshots/*/ecology/*.png \
          media/screenshots/*/*/govbot/*.png; do
