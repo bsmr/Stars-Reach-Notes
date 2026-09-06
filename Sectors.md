@@ -90,15 +90,32 @@ graph LR
 
 ### Letiemopas
 
+#### Letiemopas - Information
+
+- Health: 95.8%
+- Minerals: Quantity 69%, Diversity 100%
+- Flora: Quantity 100%, Diversity 100%
+- Fauna: Quantity 100%, Diversity 100%
+- Servitor Edicts: Iron, Vesuvianite, Tungsten
+
 #### Letiemopas - Connections
 
 - Starbase
 - Sector Connections
   - Cohufotag
   - Owiis Nuheuno
+  - Pewazi
 - Planets
   - Letiemopas I
+    - Population: 253
+    - Mineral Edicts: Copper, Gold, Magnetized Iron, Tin, Mercury, Magnesium, Lithium
+    - Flora Edicts: None
+    - Fauna Edicts: None
   - Letiemopas II
+    - Population: 147
+    - Mineral Edicts: Copper, Gold, Iron, Titanium, Diamond, Lapis Lazuli, Zircon, Tungsten, Magnesium
+    - Flora Edicts: None
+    - Fauna Edicts: Velocirabbit
   - Letiemopas III-B
   - Letiemopas IV-B
 
@@ -127,6 +144,10 @@ graph LR
     - Flora Edicts: Banyan, Truffula, Papaya
     - Fauna Edicts: None
   - Owiis Nuheuno II
+    - Population: 135
+    - Mineral Edicts: Copper, Garnet, Gold, Iron, Opal
+    - Flora Edicts: Baobab
+    - Fauna Edicts: None
   - Owiis Nuheuno III-C
   - Owiis Nuheuno IV-C
 
