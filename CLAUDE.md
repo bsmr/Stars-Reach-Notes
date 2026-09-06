@@ -64,6 +64,10 @@ Domain facts that are not visible in the code or the screenshots:
 - The ecology dialog is titled "PLANET ECOLOGY" but describes the **sector**,
   including the edicts that govern farming in the sector's space. Only the
   govbot dialog is per-planet.
+- **Edicts are a do-not-farm list.** Harvesting a resource an edict names is
+  punished: the yield is withheld — farming iron under an iron edict returned
+  nothing. So a short edict list is good news for a planet, and the sector's
+  Servitor Edicts apply on top of the planet's own.
 - Edicts, health and the resource percentages are **snapshots of a
   player-driven economy**, not constants. Identical edicts across sectors mean
   players currently need the same resources, not that the values are fixed.
